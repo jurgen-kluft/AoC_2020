@@ -128,7 +128,9 @@ size_t Parse(string str, size_t cursor, ref double v)
 class StringParser
 {
 public:
-    this(string s)
+    this() { m_cursor = 0; m_str = ""; }
+    
+    void    Reset(string s)
     {
         m_cursor = 0;
         m_str = s;
@@ -242,6 +244,19 @@ size_t Parse(string str, size_t cursor, ref Point2!float p)
     p.m_y = y;
     return i - cursor;
 }
+size_t Parse(string str, size_t cursor, ref Point2!int p)
+{
+    int x, y;
+    size_t i = cursor;
+
+    i += Parse(str, i, x);
+    i = EatSeparator(str, i, ',');
+    i += Parse(str, i, y);
+
+    p.m_x = x;
+    p.m_y = y;
+    return i - cursor;
+}
 
 struct Point3(T)
 {
@@ -266,22 +281,71 @@ size_t Parse(string str, size_t cursor, ref Point3!float p)
     p.m_z = z;
     return i - cursor;
 }
+size_t Parse(string str, size_t cursor, ref Point3!int p)
+{
+    int x, y, z;
+    size_t i = cursor;
+
+    i += Parse(str, i, x);
+    i = EatSeparator(str, i, ',');
+    i += Parse(str, i, y);
+    i = EatSeparator(str, i, ',');
+    i += Parse(str, i, z);
+
+    p.m_x = x;
+    p.m_y = y;
+    p.m_z = z;
+    return i - cursor;
+}
+
+void ReadFileLineByLine(string filename, void delegate(string line) cb)
+{
+    auto file = File(filename);
+    auto range = file.byLine();
+    foreach (l; range)
+    {
+        string line = l.text;
+        cb(line);
+    }
+}
 
 
 void main()
 {
+    auto parser = new StringParser();
+
     auto line = "point< 1.5 , 2.7 >15";
     Point2!float point;
     int i;
-    auto parser = new StringParser(line);
+    parser.Reset(line);
     parser.Match("point").Match("<").Parse(point).Consume(">").Parse(i);
     writeln("x:", point.m_x, ", y:", point.m_y);
     writeln("i:", i);
 
     auto line2 = "point3< 1.4 , 2.7, 3.9 >";
     Point3!float point3;
-    auto parser3 = new StringParser(line2);
-    parser3.Match("point3").Match("<").Parse(point3).Consume(">");
+    parser.Reset(line2);
+    parser.Match("point3").Match("<").Parse(point3).Consume(">");
     writeln("x:", point3.m_x, ", y:", point3.m_y, ", z:", point3.m_z);
+
+    Point2!int[] aposition;
+    Point2!int[] avelocity;
+
+    ReadFileLineByLine("input.text", (string line) {
+        //writeln(line); 
+        parser.Reset(line);
+
+        Point2!int position;
+        Point2!int velocity;
+        
+        // Example:  position=< 54347, -32361> velocity=<-5,  3>
+        parser.Match("position=").Match("<").Parse(position).Consume(">").Match("velocity=").Match("<").Parse(velocity).Consume(">");
+        writeln("  -> position=", position, "  velocity=", velocity);
+
+        aposition ~= position;
+        avelocity ~= velocity;
+    });
+    writeln("number of positions: ", aposition.length);
+    writeln("number of velocities: ", avelocity.length);
 
 }
