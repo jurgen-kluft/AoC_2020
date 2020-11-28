@@ -42,24 +42,24 @@ size_t EatChar(string str, size_t i, char c)
 size_t EatWhiteSpace(string str, size_t cursor)
 {
     size_t i = cursor;
-    while(i < str.length && IsWhiteSpace(str[i]))
-        i+=1;
+    while (i < str.length && IsWhiteSpace(str[i]))
+        i += 1;
     return i;
 }
 
 size_t EatIntegerChars(string str, size_t cursor)
 {
     size_t i = cursor;
-    while(i < str.length && isDigit(str[i]))
-        i+=1;
+    while (i < str.length && isDigit(str[i]))
+        i += 1;
     return i;
 }
 
 size_t EatFloatChars(string str, size_t cursor)
 {
     size_t i = cursor;
-    while(i < str.length && IsFloatChar(str[i]))
-        i+=1;
+    while (i < str.length && IsFloatChar(str[i]))
+        i += 1;
     return i;
 }
 
@@ -128,9 +128,13 @@ size_t Parse(string str, size_t cursor, ref double v)
 class StringParser
 {
 public:
-    this() { m_cursor = 0; m_str = ""; }
-    
-    void    Reset(string s)
+    this()
+    {
+        m_cursor = 0;
+        m_str = "";
+    }
+
+    void Reset(string s)
     {
         m_cursor = 0;
         m_str = s;
@@ -222,9 +226,6 @@ private:
     string m_str;
 }
 
-
-
-
 struct Point2(T)
 {
     T m_x;
@@ -244,6 +245,7 @@ size_t Parse(string str, size_t cursor, ref Point2!float p)
     p.m_y = y;
     return i - cursor;
 }
+
 size_t Parse(string str, size_t cursor, ref Point2!int p)
 {
     int x, y;
@@ -281,6 +283,7 @@ size_t Parse(string str, size_t cursor, ref Point3!float p)
     p.m_z = z;
     return i - cursor;
 }
+
 size_t Parse(string str, size_t cursor, ref Point3!int p)
 {
     int x, y, z;
@@ -309,8 +312,7 @@ void ReadFileLineByLine(string filename, void delegate(string line) cb)
     }
 }
 
-
-void main()
+void solve()
 {
     auto parser = new StringParser();
 
@@ -331,15 +333,16 @@ void main()
     Point2!int[] aposition;
     Point2!int[] avelocity;
 
-    ReadFileLineByLine("input.text", (string line) {
+    ReadFileLineByLine("input/input_1_1.text", (string line) {
         //writeln(line); 
         parser.Reset(line);
 
         Point2!int position;
         Point2!int velocity;
-        
+
         // Example:  position=< 54347, -32361> velocity=<-5,  3>
-        parser.Match("position=").Match("<").Parse(position).Consume(">").Match("velocity=").Match("<").Parse(velocity).Consume(">");
+        parser.Match("position=").Match("<").Parse(position).Consume(">")
+            .Match("velocity=").Match("<").Parse(velocity).Consume(">");
         writeln("  -> position=", position, "  velocity=", velocity);
 
         aposition ~= position;
