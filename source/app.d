@@ -1,7 +1,12 @@
 import std.stdio;
-import puzzle_1_1;
+import puzzles.puzzle1;
+import puzzles.puzzle2;
 
 void main()
 {
-    puzzle_1_1.solve();
+    solve_1_1();
+    solve_1_2();
+
+    solve_2_1();
+    solve_2_2();
 }
