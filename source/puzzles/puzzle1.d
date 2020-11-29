@@ -8,7 +8,7 @@ import utilities.stringparser;
 /// 
 void solve_1_1()
 {
-    test_stringparser();
+
 }
 
 /// 
