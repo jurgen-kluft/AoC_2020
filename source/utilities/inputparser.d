@@ -1,4 +1,4 @@
-module utilities.stringparser;
+module utilities.inputparser;
 
 import std.conv, std.string, std.range, std.stdio, std.format, std.ascii;
 import std.algorithm;
@@ -143,7 +143,7 @@ size_t parse(string str, size_t cursor, ref double v)
 }
 
 /// 
-class StringParser
+class InputParser
 {
 public:
     ///
@@ -161,7 +161,7 @@ public:
     }
 
     ///
-    StringParser consume() // Consume whitespace
+    InputParser consume() // Consume whitespace
     {
         size_t i = m_cursor;
         i += eatWhiteSpace(m_str, i);
@@ -170,7 +170,7 @@ public:
     }
 
     ///
-    StringParser consume(size_t len) // Consume certain amount of characters
+    InputParser consume(size_t len) // Consume certain amount of characters
     {
         m_cursor += len;
         if (m_cursor > m_str.length)
@@ -179,13 +179,13 @@ public:
     }
 
     ///
-    StringParser consume(string str)
+    InputParser consume(string str)
     {
         return consume().match(str).consume();
     }
 
     ///
-    StringParser output()
+    InputParser output()
     {
         string s = m_str.subRange(m_cursor, m_str.length).text;
         writeln(s);
@@ -193,7 +193,7 @@ public:
     }
 
     ///
-    StringParser match(string str)
+    InputParser match(string str)
     {
         size_t i = 0;
         while (i < str.length && (m_cursor + i) < m_str.length)
@@ -211,7 +211,7 @@ public:
     }
 
     /// parse can parse a custom type
-    StringParser parse(T)(ref T p)
+    InputParser parse(T)(ref T p)
     {
         size_t len = .parse(m_str, m_cursor, p);
         return consume(len);
@@ -316,9 +316,9 @@ void readFileLineByLine(string filename, void delegate(string line) cb)
     }
 }
 
-void test_stringparser()
+void test_parser()
 {
-    auto parser = new StringParser();
+    auto parser = new InputParser();
 
     auto line = "point< 1.5 , 2.7 >15";
     Point2!float point;
