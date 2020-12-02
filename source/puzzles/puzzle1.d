@@ -12,7 +12,7 @@ void solve_1_1()
     auto parser = new InputParser();
 
     int[] values;
-    readFileLineByLine("input/input_1_1.text", (string line) {
+    readFileLineByLine("input/input_1.text", (string line) {
         //writeln(line); 
         parser.reset(line);
         int value;
@@ -45,7 +45,7 @@ void solve_1_2()
     auto parser = new InputParser();
 
     int[] values;
-    readFileLineByLine("input/input_1_1.text", (string line) {
+    readFileLineByLine("input/input_1.text", (string line) {
         //writeln(line); 
         parser.reset(line);
         int value;

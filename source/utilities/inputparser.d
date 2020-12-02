@@ -21,6 +21,11 @@ bool isWhiteSpace(char c)
     return c == ' ' || c == '\t';
 }
 
+bool isLetter(char c)
+{
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
 /// isSignChar returns true if char is minus or positive sign character
 bool isSignChar(char c)
 {
@@ -45,6 +50,15 @@ size_t eatChar(string str, size_t i, char c)
     if (str[i] == c)
         return 1;
     return 0;
+}
+
+///
+size_t eatLetters(string str, size_t cursor)
+{
+    size_t i = cursor;
+    while (i < str.length && isLetter(str[i]))
+        i += 1;
+    return i - cursor;
 }
 
 ///
@@ -89,6 +103,37 @@ size_t eatSeparator(string str, size_t cursor, char c)
     i += eatWhiteSpace(str, i);
     i += eatChar(str, i, c);
     i += eatWhiteSpace(str, i);
+    return i - cursor;
+}
+
+///
+size_t parse(string str, size_t cursor, ref char v)
+{
+    size_t i = cursor;
+    i += eatWhiteSpace(str, i);
+    size_t b = i;
+    i += 1;
+    i += eatWhiteSpace(str, i);
+    string s = str.subRange(b, i).text;
+    v = to!char(s);
+    return i - cursor;
+}
+
+///
+size_t parse(string str, size_t cursor, ref char[] v)
+{
+    size_t i = cursor;
+    i += eatWhiteSpace(str, i);
+    size_t b = i;
+    i += eatLetters(str, i);
+    i += eatWhiteSpace(str, i);
+
+    auto txt = str.subRange(b, i).text;
+    foreach(char c; txt)
+    {
+        v ~= c;
+    }
+    
     return i - cursor;
 }
 

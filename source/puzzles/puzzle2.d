@@ -5,14 +5,91 @@ import std.algorithm;
 import core.stdc.string : strlen;
 import utilities.inputparser;
 
+struct password
+{
+    int min,max;
+    char c;
+    char[] pwd;
+}
+
 /// 
 void solve_2_1()
 {
+    auto parser = new InputParser();
 
+    password[] passwords;
+
+    // 1-5 k: kkkkhkkkkkkkkkk
+    readFileLineByLine("input/input_2.text", (string line) {
+        //writeln(line); 
+        parser.reset(line);
+        
+        int min, max;
+        char c;
+        char[] pwd;
+
+        parser.parse(min).consume("-").parse(max).parse(c).consume(":").parse(pwd);
+        //writeln("  -> min=", min, " max=", max, " c:", c, " password=", pwd);
+
+        password p = {min = min, max = max, c = c, pwd = pwd };
+        passwords ~= p;
+    });
+
+    int valid_passwords = 0;
+    foreach(password p; passwords)
+    {
+        int count = 0;
+        foreach(char c; p.pwd)
+        {
+            if (c == p.c)
+            {
+                count++;
+            }
+        }
+        if (count >= p.min && count <= p.max)
+        {
+            valid_passwords++;
+        }
+    }
+
+    writeln("1: number of valid passwords: ", valid_passwords);
 }
 
 /// 
 void solve_2_2()
 {
+    auto parser = new InputParser();
 
+    password[] passwords;
+
+    // 1-5 k: kkkkhkkkkkkkkkk
+    readFileLineByLine("input/input_2.text", (string line) {
+        //writeln(line); 
+        parser.reset(line);
+        
+        int min, max;
+        char c;
+        char[] pwd;
+
+        parser.parse(min).consume("-").parse(max).parse(c).consume(":").parse(pwd);
+        //writeln("  -> min=", min, " max=", max, " c:", c, " password=", pwd);
+
+        password p = {min = min, max = max, c = c, pwd = pwd };
+        passwords ~= p;
+    });
+
+    int valid_passwords = 0;
+    foreach(password p; passwords)
+    {
+        if (p.pwd[p.min-1] == p.c && p.pwd[p.max-1] != p.c)
+        {
+            valid_passwords++;
+        }
+        else if (p.pwd[p.min-1] != p.c && p.pwd[p.max-1] == p.c)
+        {
+            valid_passwords++;
+        }
+    }
+
+    writeln("2: number of valid passwords: ", valid_passwords);
 }
