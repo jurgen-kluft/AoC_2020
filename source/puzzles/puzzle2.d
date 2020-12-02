@@ -23,15 +23,9 @@ void solve_2_1()
     readFileLineByLine("input/input_2.text", (string line) {
         //writeln(line); 
         parser.reset(line);
-        
-        int min, max;
-        char c;
-        char[] pwd;
-
-        parser.parse(min).consume("-").parse(max).parse(c).consume(":").parse(pwd);
+        password p;
+        parser.parse(p.min).consume("-").parse(p.max).parse(p.c).consume(":").parse(p.pwd);
         //writeln("  -> min=", min, " max=", max, " c:", c, " password=", pwd);
-
-        password p = {min = min, max = max, c = c, pwd = pwd };
         passwords ~= p;
     });
 
@@ -66,15 +60,9 @@ void solve_2_2()
     readFileLineByLine("input/input_2.text", (string line) {
         //writeln(line); 
         parser.reset(line);
-        
-        int min, max;
-        char c;
-        char[] pwd;
-
-        parser.parse(min).consume("-").parse(max).parse(c).consume(":").parse(pwd);
+        password p;
+        parser.parse(p.min).consume("-").parse(p.max).parse(p.c).consume(":").parse(p.pwd);
         //writeln("  -> min=", min, " max=", max, " c:", c, " password=", pwd);
-
-        password p = {min = min, max = max, c = c, pwd = pwd };
         passwords ~= p;
     });
 
