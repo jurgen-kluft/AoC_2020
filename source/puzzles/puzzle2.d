@@ -16,7 +16,6 @@ struct password
 void solve_2_1()
 {
     auto parser = new InputParser();
-
     password[] passwords;
 
     // 1-5 k: kkkkhkkkkkkkkkk

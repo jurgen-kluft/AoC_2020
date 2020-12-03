@@ -205,6 +205,11 @@ public:
         m_str = s;
     }
 
+    bool at_end()
+    {
+        return m_cursor >= m_str.length;
+    }
+
     ///
     InputParser consume() // Consume whitespace
     {
@@ -252,6 +257,19 @@ public:
         }
         if (i == str.length)
             m_cursor += i;
+        return this;
+    }
+
+    InputParser read(ref char p)
+    {
+        if (!at_end())
+        {
+            p = m_str[m_cursor++];
+        }
+        else
+        {
+            p = '?';
+        }
         return this;
     }
 
