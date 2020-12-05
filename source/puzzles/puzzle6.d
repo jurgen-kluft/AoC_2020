@@ -6,13 +6,13 @@ import core.stdc.string : strlen;
 import utilities.inputparser;
 
 /// 
-void solve_2_1()
+void solve_6_1()
 {
 
 }
 
 /// 
-void solve_2_2()
+void solve_6_2()
 {
 
 }

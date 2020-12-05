@@ -27,9 +27,8 @@ void solve_4_1()
         {
             while (!parser.at_end())
             {
-                parser.consume();
                 KeyValue kv;
-                kv.seperator = ':';
+                parser.consume();
                 parser.parse(kv);
                 if (valid_keys.canFind(kv.key))
                 {
@@ -64,9 +63,8 @@ void solve_4_2()
         {
             while (!parser.at_end())
             {
-                parser.consume();
                 KeyValue kv;
-                kv.seperator = ':';
+                parser.consume();
                 parser.parse(kv);
                 if (valid_keys.canFind(kv.key))
                 {
