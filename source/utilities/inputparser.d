@@ -15,6 +15,25 @@ unittest
     assert("abcçdef".subRange(2, 4).equal("cç"));
 }
 
+size_t match(string str, size_t cursor, string m)
+{
+    size_t i = 0;
+    while (i < m.length && (cursor + i) < str.length)
+    {
+        if (m[i] != str[cursor + i])
+        {
+            i = 0;
+            break;
+        }
+        i++;
+    }
+    if (i == m.length)
+    {
+        return i;
+    }
+    return 0;
+}
+
 /// isWhiteSpace returns true if char is ' ' or '\t'
 bool isWhiteSpace(char c)
 {
@@ -24,6 +43,11 @@ bool isWhiteSpace(char c)
 bool isLetter(char c)
 {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+bool isHex(char c)
+{
+    return (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
 /// isSignChar returns true if char is minus or positive sign character
@@ -47,9 +71,27 @@ bool isFloatChar(char c)
 ///
 size_t eatChar(string str, size_t i, char c)
 {
-    if (str[i] == c)
+    if (i < str.length && str[i] == c)
         return 1;
     return 0;
+}
+
+///
+size_t eatChars(string str, size_t cursor)
+{
+    size_t i = cursor;
+    while (i < str.length && !isWhiteSpace(str[i]))
+        i += 1;
+    return i - cursor;
+}
+
+///
+size_t eatCharsUntil(string str, size_t cursor, char until)
+{
+    size_t i = cursor;
+    while (i < str.length && (str[i] != until))
+        i += 1;
+    return i - cursor;
 }
 
 ///
@@ -80,6 +122,15 @@ size_t eatIntegerChars(string str, size_t cursor)
 }
 
 ///
+size_t eatHexChars(string str, size_t cursor)
+{
+    size_t i = cursor;
+    while (i < str.length && (isDigit(str[i]) || isHex(str[i])))
+        i += 1;
+    return i - cursor;
+}
+
+///
 size_t eatFloatChars(string str, size_t cursor)
 {
     size_t i = cursor;
@@ -91,7 +142,7 @@ size_t eatFloatChars(string str, size_t cursor)
 /// 
 size_t eatSignChar(string str, size_t cursor)
 {
-    if (isSignChar(str[cursor]))
+    if (cursor < str.length && isSignChar(str[cursor]))
         return 1;
     return 0;
 }
@@ -114,8 +165,11 @@ size_t parse(string str, size_t cursor, ref char v)
     size_t b = i;
     i += 1;
     i += eatWhiteSpace(str, i);
-    string s = str.subRange(b, i).text;
-    v = to!char(s);
+    if (b > i)
+    {
+        string s = str.subRange(b, i).text;
+        v = to!char(s);
+    }
     return i - cursor;
 }
 
@@ -128,12 +182,15 @@ size_t parse(string str, size_t cursor, ref char[] v)
     i += eatLetters(str, i);
     i += eatWhiteSpace(str, i);
 
-    auto txt = str.subRange(b, i).text;
-    foreach(char c; txt)
+    if (b > i)
     {
-        v ~= c;
+        auto txt = str.subRange(b, i).text;
+        foreach(char c; txt)
+        {
+            v ~= c;
+        }
     }
-    
+
     return i - cursor;
 }
 
@@ -145,8 +202,11 @@ size_t parse(string str, size_t cursor, ref int v)
     size_t b = i;
     i += eatSignChar(str, i);
     i += eatIntegerChars(str, i);
-    string s = str.subRange(b, i).text;
-    v = to!int(s);
+    if (i > b)
+    {
+        string s = str.subRange(b, i).text;
+        v = to!int(s);
+    }
     return i - cursor;
 }
 
@@ -158,8 +218,11 @@ size_t parse(string str, size_t cursor, ref ulong v)
     size_t b = i;
     i += eatSignChar(str, i);
     i += eatIntegerChars(str, i);
-    string s = str.subRange(b, i).text;
-    v = to!int(s);
+    if (i > b)
+    {
+        string s = str.subRange(b, i).text;
+        v = to!int(s);
+    }
     return i - cursor;
 }
 
@@ -170,8 +233,11 @@ size_t parse(string str, size_t cursor, ref float v)
     i += eatWhiteSpace(str, i);
     size_t b = i;
     i += eatFloatChars(str, i);
-    string s = str.subRange(b, i).text;
-    v = to!float(s);
+    if (i > b)
+    {
+        string s = str.subRange(b, i).text;
+        v = to!float(s);
+    }
     return i - cursor;
 }
 
@@ -182,8 +248,11 @@ size_t parse(string str, size_t cursor, ref double v)
     i += eatWhiteSpace(str, i);
     size_t b = i;
     i += eatFloatChars(str, i);
-    string s = str.subRange(b, i).text;
-    v = to!double(s);
+    if (i > b)
+    {
+        string s = str.subRange(b, i).text;
+        v = to!double(s);
+    }
     return i - cursor;
 }
 
@@ -231,7 +300,9 @@ public:
     ///
     InputParser consume(string str)
     {
-        return consume().match(str).consume();
+        consume();
+        match(str);
+        return consume();
     }
 
     ///
@@ -243,20 +314,18 @@ public:
     }
 
     ///
+    bool is_match(string str)
+    {
+        size_t i = .match(m_str, m_cursor, str);
+        m_cursor += i;
+        return i > 0;
+    }
+
+    ///
     InputParser match(string str)
     {
-        size_t i = 0;
-        while (i < str.length && (m_cursor + i) < m_str.length)
-        {
-            if (str[i] != m_str[m_cursor + i])
-            {
-                i = 0;
-                break;
-            }
-            i++;
-        }
-        if (i == str.length)
-            m_cursor += i;
+        size_t i = .match(m_str, m_cursor, str);
+        m_cursor += i;
         return this;
     }
 
@@ -323,6 +392,110 @@ size_t parse(string str, size_t cursor, ref Point2!int p)
     return i - cursor;
 }
 
+struct Height
+{
+    int value;
+    int units;  // 1 = cm, 2 = inch
+}
+
+///
+size_t parse(string str, size_t cursor, ref Height h)
+{
+    size_t i = cursor;
+    size_t b = i;
+    i += eatIntegerChars(str, i);
+
+    int unit = 1;
+    int unitlen = 0;
+    if ((i+1) < str.length)
+    {
+        if (str[i] == 'i' && str[i+1]=='n')
+        {
+            unit = 2;
+            unitlen = 2;
+        }
+        if (str[i] == 'c' && str[i+1]=='m')
+        {
+            unit = 1;
+            unitlen = 2;
+        }
+    }
+
+    if (unit > 0)
+    {
+        string s = str.subRange(b, i).text;
+        uint radix = 16;
+        h.value = std.conv.parse!int(s, radix);
+        h.units = unit;
+        i += unitlen; // skip unit
+        return i - cursor;
+    }
+    else if (str[i] == 'i' && str[i+1]=='n')
+    {
+    }
+    return 0;
+}
+
+struct Color
+{
+    int color;
+}
+
+///
+size_t parse(string str, size_t cursor, ref Color c)
+{
+    size_t i = cursor;
+    if (str[i] == '#')
+    {
+        i += 1;
+    }
+    size_t b = i;
+    i += eatChars(str, i);
+    if (i > b && ((i-b) > 3))
+    {
+        string s = str.subRange(b, i).text;
+        c.color = std.conv.parse!int(s, 16);
+    }
+    else
+    {
+        c.color = 111111;
+    }
+    return i - cursor;
+}
+
+struct KeyValue
+{
+    char seperator;
+    string key;
+    string value;
+}
+
+///
+size_t parse(string str, size_t cursor, ref KeyValue kv)
+{
+    size_t i = cursor;
+
+    if (i < str.length)
+    {
+        size_t b = i;
+        i += eatCharsUntil(str, i, kv.seperator);
+        {
+            kv.key = str.subRange(b, i).text;
+        }
+        if (i < str.length && str[i] == kv.seperator)
+        {
+            i += 1;
+            b = i;
+            i += eatChars(str, i);
+            {
+                kv.value = str.subRange(b, i).text;
+            }
+        }
+    }
+    return i - cursor;
+}
+
+
 ///
 struct Point3(T)
 {
@@ -366,6 +539,7 @@ size_t parse(string str, size_t cursor, ref Point3!int p)
     p.m_z = z;
     return i - cursor;
 }
+
 
 ///
 void readFileLineByLine(string filename, void delegate(string line) cb)
