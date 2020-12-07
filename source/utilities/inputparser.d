@@ -538,6 +538,7 @@ void readFileLineByLine(string filename, void delegate(string line) cb)
         string line = l.text;
         cb(line);
     }
+    cb("");
 }
 
 void test_parser()
