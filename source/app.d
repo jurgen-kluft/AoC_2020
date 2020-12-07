@@ -5,6 +5,7 @@ import puzzles.puzzle3;
 import puzzles.puzzle4;
 import puzzles.puzzle5;
 import puzzles.puzzle6;
+import puzzles.puzzle7;
 
 void main()
 {
@@ -20,6 +21,8 @@ void main()
     //solve_4_2();
     //solve_5_1();
     //solve_5_2();
-    solve_6_1();
-    solve_6_2();
+    //solve_6_1();
+    //solve_6_2();
+    solve_7_1();
+    solve_7_2();
 }

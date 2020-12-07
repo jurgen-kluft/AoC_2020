@@ -400,6 +400,22 @@ public:
         return this;
     }
 
+    InputParser readWord(ref string w)
+    {
+        if (!at_end())
+        {
+            m_cursor += eatWhiteSpace(m_str, m_cursor);
+            size_t wordlen = eatLetters(m_str, m_cursor);
+            w = m_str.subRange(m_cursor, m_cursor + wordlen).text;
+            m_cursor += wordlen;
+        }
+        else
+        {
+            w = "?";
+        }
+        return this;
+    }
+
     /// parse can parse a custom type
     InputParser parse(T)(ref T p)
     {
