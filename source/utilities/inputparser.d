@@ -137,7 +137,7 @@ size_t match(string str, size_t cursor, string m)
 
     if ((cursor + m.length) < str.length)
     {
-        if (str.slice(cursor, m.length) == m)
+        if (str.slice(cursor, cursor + m.length) == m)
             return m.length;
     }
 
@@ -341,8 +341,7 @@ public:
     InputParser consume() // Consume whitespace
     {
         size_t i = m_cursor;
-        i += eatWhiteSpace(m_str, i);
-        m_cursor = i;
+        m_cursor += eatWhiteSpace(m_str, i);
         return this;
     }
 
