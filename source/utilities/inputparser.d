@@ -279,7 +279,7 @@ size_t parse(string str, size_t cursor, ref ulong v)
     if (i > b)
     {
         string s = str.subRange(b, i).text;
-        v = to!int(s);
+        v = to!ulong(s);
     }
     return i - cursor;
 }
