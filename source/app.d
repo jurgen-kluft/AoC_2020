@@ -12,6 +12,7 @@ import puzzles.puzzle10;
 import puzzles.puzzle11;
 import puzzles.puzzle12;
 import puzzles.puzzle13;
+import puzzles.puzzle14;
 
 void main()
 {
@@ -41,6 +42,8 @@ void main()
     //solve_11_2();
     //solve_12_1();
     //solve_12_2();
-    solve_13_1();
-    solve_13_2();
+    //solve_13_1();
+    //solve_13_2();
+    solve_14_1();
+    solve_14_2();
 }

@@ -130,6 +130,16 @@ size_t eatLetters(string str, size_t cursor)
     return i - cursor;
 }
 
+///
+size_t eatAlphaNumeric(string str, size_t cursor)
+{
+    size_t i = cursor;
+    while (i < str.length && (isAlpha(str[i]) || isDigit(str[i])))
+        i += 1;
+    return i - cursor;
+}
+
+
 size_t match(string str, size_t cursor, string m)
 {
     if (m.length == 0)
@@ -223,7 +233,7 @@ size_t parse(string str, size_t cursor, ref char v)
     size_t b = i;
     i += 1;
     i += eatWhiteSpace(str, i);
-    if (b > i)
+    if (i > b)
     {
         string s = str.subRange(b, i).text;
         v = to!char(s);
@@ -237,10 +247,10 @@ size_t parse(string str, size_t cursor, ref char[] v)
     size_t i = cursor;
     i += eatWhiteSpace(str, i);
     size_t b = i;
-    i += eatLetters(str, i);
+    i += eatAlphaNumeric(str, i);
     i += eatWhiteSpace(str, i);
 
-    if (b > i)
+    if (i > b)
     {
         auto txt = str.subRange(b, i).text;
         foreach(char c; txt)
