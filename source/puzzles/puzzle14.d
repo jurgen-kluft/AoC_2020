@@ -151,6 +151,7 @@ u64 constructFloatingMask(u64 mask, int numbits, int perm)
             mask = mask & ~maskbit;
         }
 
+        maskbit = maskbit << 1;
         b += 1;
     }
     return mask;
@@ -257,9 +258,7 @@ void solve_14_2()
             {
                 u64 memloc = alocation[i] | maskor;
                 memloc = memloc & (~maskfloat);
-                u64 memlocfloat = constructFloatingMask(maskfloat, numfloatingbits, perm);
-                memloc = memloc | memlocfloat;
-
+                memloc = memloc |  constructFloatingMask(maskfloat, numfloatingbits, perm);
                 amemory[memloc] = avalue[i];
             }
         }
