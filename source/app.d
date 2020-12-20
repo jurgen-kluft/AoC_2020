@@ -17,7 +17,13 @@ import puzzles.puzzle15;
 import puzzles.puzzle16;
 import puzzles.puzzle17;
 import puzzles.puzzle18;
-
+import puzzles.puzzle19;
+import puzzles.puzzle20;
+//import puzzles.puzzle21;
+//import puzzles.puzzle22;
+//import puzzles.puzzle23;
+//import puzzles.puzzle24;
+//import puzzles.puzzle25;
 
 void main()
 {
@@ -57,6 +63,20 @@ void main()
     //solve_16_2();
     //solve_17_1();
     //solve_17_2();
-    solve_18_1();
-    solve_18_2();
+    //solve_18_1();
+    //solve_18_2();
+    solve_19_1();
+    solve_19_2();
+    //solve_20_1();
+    //solve_20_2();
+    //solve_21_1();
+    //solve_21_2();
+    //solve_22_1();
+    //solve_22_2();
+    //solve_23_1();
+    //solve_23_2();
+    //solve_24_1();
+    //solve_24_2();
+    //solve_25_1();
+    //solve_25_2();
 }
