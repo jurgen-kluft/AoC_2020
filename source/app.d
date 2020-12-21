@@ -65,10 +65,10 @@ void main()
     //solve_17_2();
     //solve_18_1();
     //solve_18_2();
-    solve_19_1();
-    solve_19_2();
-    //solve_20_1();
-    //solve_20_2();
+    //solve_19_1();
+    //solve_19_2();
+    solve_20_1();
+    solve_20_2();
     //solve_21_1();
     //solve_21_2();
     //solve_22_1();
