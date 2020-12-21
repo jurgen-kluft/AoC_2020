@@ -560,7 +560,7 @@ void readFileLineByLine(string filename, void delegate(string line) cb)
     auto range = file.byLine();
     foreach (l; range)
     {
-        string line = l.text;
+        string line = strip(l.text);
         cb(line);
     }
     cb("");

@@ -3,28 +3,85 @@ import std.conv;
 import std.stdio;
 import core.vararg;
 
-class tokenizer_t
+class Tokenizer_t
 {
-    this()
-    {
+    abstract bool parse(string str, ref int cursor);
+}
 
+class Var
+{
+    int m_var;
+
+    void Set(int v)
+    {
+        m_var = v;
     }
 
-    bool parse(string str, ref int cursor)
+    int Get()
     {
-        return false;
+        return m_var;
+    }
+
+    void Reset()
+    {
+        m_var = -1;
     }
 }
 
-class integer_t : tokenizer_t
+class Vars
 {
-    int * m_digit;
-    int * m_count;
+    int[] m_vars;
 
-    this(int * d, int * count)
+    void Push(int v)
     {
-        m_digit = d;
-        m_count = count;
+        m_vars ~= v;
+    }
+
+    int Count()
+    {
+        return cast(int)m_vars.length;
+    }
+    
+    int opIndex(int i) { return m_vars[i]; }
+
+    void Reset()
+    {
+        m_vars.length = 0;
+    }
+}
+
+class Text
+{
+    string[] m_text;
+
+    void Set(string txt)
+    {
+        m_text ~= txt;
+    }
+
+    string Get(int i)
+    {
+        return m_text[i];
+    }
+
+    int Count()
+    {
+        return cast(int)m_text.length;
+    }
+
+    void Reset()
+    {
+        m_text.length = 0;
+    }
+}
+
+class Index : Tokenizer_t
+{
+    Var m_var;
+
+    this(Var v)
+    {
+        m_var = v;
     }
 
     bool is_digit(char c)
@@ -34,7 +91,7 @@ class integer_t : tokenizer_t
 
     override bool parse(string str, ref int cursor)
     {
-        //write(" integer_t");
+        //write(" Integer");
         if (cursor == str.length)
             return false;
 
@@ -53,21 +110,58 @@ class integer_t : tokenizer_t
         {
             return false;
         }
-        *m_digit = n;
-        *m_count += 1;
+        m_var.Set(n);
         return true;
     }
 }
 
-class string_t : tokenizer_t
+class Integer : Tokenizer_t
 {
-    string * m_str;
-    int * m_count;
+    Vars m_vars;
 
-    this(string * c, int * count)
+    this(Vars v)
     {
-        m_str = c;
-        m_count = count;
+        m_vars = v;
+    }
+
+    bool is_digit(char c)
+    {
+        return (c >= '0' && c <= '9');
+    }
+
+    override bool parse(string str, ref int cursor)
+    {
+        //write(" Integer");
+        if (cursor == str.length)
+            return false;
+
+        int n = 0;
+        if (is_digit(str[cursor]))
+        {
+            while (cursor < str.length && is_digit(str[cursor]))
+            {
+                int d = str[cursor] - '0';
+                n = (n*10) + d;
+                cursor += 1;
+            }
+        }
+        else
+        {
+            writeln("no digit starts here ", cursor, " = ", str[cursor]);
+            return false;
+        }
+        m_vars.Push(n);
+        return true;
+    }
+}
+
+class String : Tokenizer_t
+{
+    Text m_text;
+
+    this(Text t)
+    {
+        m_text = t;
     }
 
     bool is_alphabet(char c)
@@ -84,13 +178,12 @@ class string_t : tokenizer_t
             rstr ~= str[cursor];
             cursor += 1;
         }
-        *m_str = rstr.text;
-        *m_count += 1;
+        m_text.Set(rstr.text);
         return true;
     }
 }
 
-class is_t : tokenizer_t
+class Is : Tokenizer_t
 {
     char m_c;
 
@@ -101,31 +194,24 @@ class is_t : tokenizer_t
 
     override bool parse(string str, ref int cursor)
     {
-        //write(" is_t");
-        if (cursor < str.length)
+        //write(" Is");
+        if (cursor < str.length && (str[cursor] == m_c))
         {
-            char c = str[cursor];
-            if (c == m_c)
-            {
-                cursor += 1;
-                return true;
-            }
+            cursor += 1;
+            return true;
         }
         return false;
 
     }
 }
 
-class whitespace_t : tokenizer_t
+class Whitespace : Tokenizer_t
 {
-    this()
-    {
-
-    }
+    this() {}
 
     override bool parse(string str, ref int cursor)
     {
-        if (cursor < str.length && str[cursor] == ' ')
+        if ((cursor < str.length) && (str[cursor] == ' ' || str[cursor] == '\t'))
         {
             cursor += 1;
             return true;
@@ -134,12 +220,38 @@ class whitespace_t : tokenizer_t
     }
 }
 
-class between_t : tokenizer_t
+class Until : Tokenizer_t
 {
-    tokenizer_t m_a;
+    Tokenizer_t m_until;
+    Tokenizer_t m_entry;
+    this(Tokenizer_t until, Tokenizer_t entry)
+    {
+        m_until = until;
+        m_entry = entry;
+    }
+
+    override bool parse(string str, ref int cursor)
+    {
+        int start = cursor;
+        while (!m_until.parse(str, cursor))
+        {
+            if (!m_entry.parse(str, cursor))
+            {
+                cursor = start;
+                return false;
+            }
+        }
+        return true;
+    }
+
+}
+
+class Counted : Tokenizer_t
+{
+    Tokenizer_t m_a;
     int m_min;
     int m_max;
-    this(tokenizer_t a, int min, int max)
+    this(Tokenizer_t a, int min, int max)
     {
         m_a = a;
         m_min = min;
@@ -149,7 +261,6 @@ class between_t : tokenizer_t
     override bool parse(string str, ref int cursor)
     {
         int start = cursor;
-
         int count = 0;
         while (m_a.parse(str, cursor))
         {
@@ -164,35 +275,35 @@ class between_t : tokenizer_t
     }
 }
 
-class once_t : between_t
+class Once : Counted
 {
-    this(tokenizer_t a)
+    this(Tokenizer_t a)
     {
         super(a, 1, 1);
     }
 }
 
-class zeroOrMore_t : between_t
+class ZeroOrMore : Counted
 {
-    this(tokenizer_t a)
+    this(Tokenizer_t a)
     {
-        super(a, 0, int.max);
+        super(a, 0, 0x7fffffff);
     }
 }
 
-class oneOrMore_t : between_t
+class OneOrMore : Counted
 {
-    this(tokenizer_t a)
+    this(Tokenizer_t a)
     {
-        super(a, 1, int.max);
+        super(a, 1, 0x7fffffff);
     }
 }
 
-class and_t : tokenizer_t
+class And : Tokenizer_t
 {
-    tokenizer_t m_a;
-    tokenizer_t m_b;
-    this(tokenizer_t a, tokenizer_t b)
+    Tokenizer_t m_a;
+    Tokenizer_t m_b;
+    this(Tokenizer_t a, Tokenizer_t b)
     {
         m_a = a;
         m_b = b;
@@ -200,7 +311,7 @@ class and_t : tokenizer_t
 
     override bool parse(string str, ref int cursor)
     {
-        //write(" and_t");
+        //write(" And");
         int start1 = cursor;
         bool result1 = m_a.parse(str, start1);
         if (!result1)
@@ -219,7 +330,26 @@ class and_t : tokenizer_t
     }
 }
 
-class eol_t : tokenizer_t
+class Print : Tokenizer_t
+{
+    string m_text;
+    this(string text) { m_text = text; }
+
+    override bool parse(string str, ref int cursor)
+    {
+        if (cursor < str.length)
+        {
+            writeln(m_text, " -> ", str[cursor]);
+        }
+        else
+        {
+            writeln(m_text, "-> EOS");
+        }
+        return true;
+    }
+
+}
+class EOL : Tokenizer_t
 {
     this()
     {
@@ -228,17 +358,17 @@ class eol_t : tokenizer_t
 
     override bool parse(string str, ref int cursor)
     {
-        //write(" eol_t");
+        //write(" EOL");
         return cursor == str.length;
     }
 
 }
 
-class or_t : tokenizer_t
+class Or : Tokenizer_t
 {
-    tokenizer_t m_a;
-    tokenizer_t m_b;
-    this(tokenizer_t a, tokenizer_t b)
+    Tokenizer_t m_a;
+    Tokenizer_t m_b;
+    this(Tokenizer_t a, Tokenizer_t b)
     {
         m_a = a;
         m_b = b;
@@ -246,7 +376,7 @@ class or_t : tokenizer_t
 
     override bool parse(string str, ref int cursor)
     {
-        //write(" or_t");
+        //write(" Or");
         if (!m_a.parse(str, cursor))
         {
             if (!m_b.parse(str, cursor))
@@ -258,23 +388,23 @@ class or_t : tokenizer_t
     }
 }
 
-class seq_t : tokenizer_t
+class Seq : Tokenizer_t
 {
-    tokenizer_t[] m_items;
+    Tokenizer_t[] m_items;
     
-    this(tokenizer_t a, ...)
+    this(Tokenizer_t a, ...)
     {
         m_items ~= a;
         for (int i = 0; i < _arguments.length; i++)
         {
-            tokenizer_t t = va_arg!(tokenizer_t)(_argptr);
+            Tokenizer_t t = va_arg!(Tokenizer_t)(_argptr);
             m_items ~= t;
         }        
     }
 
     override bool parse(string str, ref int cursor)
     {
-        //write(" seq_t");
+        //write(" Seq");
 
         int start = cursor;
         foreach(item; m_items)
