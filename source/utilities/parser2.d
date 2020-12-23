@@ -183,6 +183,33 @@ class String : Tokenizer_t
     }
 }
 
+class Exact: Tokenizer_t
+{
+    string m_str;
+
+    this(string str)
+    {
+        m_str = str;
+    }
+
+    override bool parse(string str, ref int cursor)
+    {
+        int start = cursor;
+        int i = 0;
+        while (cursor < str.length && i < m_str.length)
+        {
+            if (str[cursor] != m_str[i])
+            {
+                cursor = start;
+                return false;
+            }
+            i += 1;
+            cursor += 1;
+        }
+        return true;
+    }
+}
+
 class Is : Tokenizer_t
 {
     char m_c;
